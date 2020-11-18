@@ -66,8 +66,10 @@ if (gameState == null) {
     fs.writeFileSync("db.json", JSON.stringify(gameState), "utf8");
 }
 
+
 //when a client connects serve the static files in the public directory ie public/index.html
 app.use(express.static('public'));
+
 
 //when a client connects 
 io.on('connection', function (socket) {
@@ -77,7 +79,6 @@ io.on('connection', function (socket) {
     //this is sent to the client 
     //socket.emit('message', { id:"server", message: "Server says: HELLO!" });
 
-    
     //when a client disconnects I have to delete its player object
     //or I may end up with ghost players
 
@@ -455,7 +456,7 @@ function userLeft(socket, data) {
             }
             else {
                 //in every other case 
-                //pick an inherithor of the orphan objects
+                //pick an inheritor of the orphan objects
                 var keys = Object.keys(gameState.players);
                 var newOwner = "";
                 if (keys.length > 0)
@@ -484,10 +485,12 @@ function userLeft(socket, data) {
     console.log("There are now " + Object.keys(gameState.players).length + " players");
 }
 
+
 //listen to the port 3000
 http.listen(PORT, function () {
     console.log('listening on *:' + PORT);
 });
+
 
 //saveState simply writes down a copy of the gameState object as a JSON text file
 //This solution does NOT scale if you have a lot of persistent objects.
