@@ -3,7 +3,7 @@
 This is an example of multiplayer architecture with "smart" clients. 
 The clients (Unity) do most of the work; the server (node.js) mostly validates and broadcast the changes of state.
 
-The client's source is [downloadable separately as a unitypackage](https://drive.google.com/file/d/1n0Plf66cGGUUr-70J6H_RElZBKK6i7G9/view?usp=sharing).
+The client's source is [in a different repository](https://github.com/molleindustria/distributedAuthorityClient).
 
 This architecture involves "networked objects" that are tracked by an individual client referred to as "owner". 
 
@@ -157,9 +157,9 @@ All clients should run the same code so you need to rebuild, close and reopen th
 You should see the WebGL build that comes with this repository
 
 ### Building an executable client
-* Download the [client package](https://drive.google.com/file/d/1n0Plf66cGGUUr-70J6H_RElZBKK6i7G9/view?usp=sharing)
-* Create a new unity project and import the package
-* Test it in the editor first
+* Download the [client repository](https://github.com/molleindustria/distributedAuthorityClient). That is not a full unity project, it only includes the Assets.
+* Create a new unity project and import the client assets
+* Test it locally and in the editor first
 * Build an executable for your system File > build settings > Build
 * On MacOS you can't open multiple copies (instances) of the same program by double clicking, you have to open the terminal at the folder and launch the app with the -n parameter: ```open -n game.app```
 * On Windows you may have to hold *shift* when double clicking on the executable
@@ -211,32 +211,36 @@ Always keep in mind that Glitch projects go to sleep when inactive so they may r
 
 # Troubleshooting
 
-Unity compiling Error:
+* Unity compiling Error:
 `UnauthorizedAccessException: Access to the path ...` 
 Possible solution: Unity is trying to create a file in a folder in user. Make sure your server.js is not running locally CTRL+C / CMD+C.
 
-Unity runtime error:
+* Unity runtime error:
 `An error has occurred in sending data`
 Possible solution: server.js is not running or crashed, fix the error there
 
-Browser says
+* Browser says
 `This site can’t be reached`
 Possible solution: make sure server.js is running.
 Make sure the ports on the browser URL, the PORT on server.js, and the port on socketIO controller are the same (eg 3000)
 
-On broswer the loading bar is stuck on 90%    
+* On broswer the loading bar is stuck on 90%    
 Possible solution: Unity > Project settings > Player > WebGL (html5 icon) tab at the bottom > Compression format > Disabled
 
-Browser console error:
+* Browser console error:
 `ReferenceError: io is not defined`
 or
 `error ERR_CONNECTION_REFUSED socket.io/socket.io.js`
-Possible solution: it's probably the missing link to socket.io point 2 above
+Possible solution: it's probably the missing link to socket.io, Make sure that the webGL template is selected and that it corresponds to the right unity version
 
+* Browser console error:
 `VM206:1 GET https://localhost/socket.io/?EIO=3&transport=polling&t=NGnQ_L0 net::ERR_CONNECTION_REFUSED`
-Possible solution: it's probably an secure connection issue. 
+Possible solution: it's probably a secure connection issue. 
 In Unity find socketIO controller on the scene, uncheck ssl enabled.
 You may encounter the inverse error when you publish on a https domain, it may refuse connection 
+
+* The client build works locally but not online (e.g. glitch) or viceversa. 
+It's normal: the socket manager needs an url, a port, and an SSL/no SSL boolean, to connect. Glitch or heroku use slighly different settings that are hardcoded in the client build. Change them on the inspector of SocketIOController.cs or override them from NetManager, look for the "GLITCH" boolean for example.
 
 
 
