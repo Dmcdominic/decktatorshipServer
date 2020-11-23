@@ -147,6 +147,9 @@ io.on('connection', function (socket) {
         gameState.UNIQUE_ID++;
         //anti-hack: the server writes the owner
         data.owner = socket.id;
+        if (data.netVariables != null) {
+            data.netVariables.uniqueId = data.uniqueId;
+        }
         //save the object information, prefab, owner, transform etc
         gameState.objects[data.uniqueId] = data;
         io.sockets.emit('instantiate', data);
@@ -230,22 +233,41 @@ io.on('connection', function (socket) {
         var o = gameState.objects[data.uniqueId];
 
         //double check that the requester is the owner and the object can be manipulated
-        if (o != null)
+        if (o != null) {
             if (o.owner == socket.id) {
                 //copy the non null variables and send them down 
-                for (var v in data) {
+                // I commented out this for-loop, because the whole netVariables property is set below that anyway...
+                // for (var v in data) {
 
-                    if (data[v] != null)
-                        gameState.objects[data.uniqueId].netVariables[v] = data[v];
-                    //else
-                    //    print("Here it is!");
-                }
+                //     if (data[v] != null)
+                //         gameState.objects[data.uniqueId].netVariables[v] = data[v];
+                //     //else
+                //     //    print("Here it is!");
+                // }
 
                 gameState.objects[data.uniqueId].netVariables = data;
 
                 io.sockets.emit('setVariables', gameState.objects[data.uniqueId].netVariables);
                 gameState.players[socket.id].lastActivity = new Date().getTime();
             }
+        }
+    });
+
+    // change variables by incrementing them, to prevent race conditions
+    socket.on('incrVariables', function (data) {
+        var o = gameState.objects[data.uniqueId];
+        //double check that the object exists
+        if (o != null) {
+            //increment the qualityStates
+            for (var v in data.qualityStates.states) {
+                if (data.qualityStates.states[v] != null && gameState.objects[data.uniqueId].netVariables.qualityStates.states[v] != null) {
+                    gameState.objects[data.uniqueId].netVariables.qualityStates.states[v] += data.qualityStates.states[v];
+                }
+            }
+            // Send the updated values
+            io.sockets.emit('setVariables', gameState.objects[data.uniqueId].netVariables);
+            gameState.players[socket.id].lastActivity = new Date().getTime();
+        }
     });
 
     socket.on('netFunction', function (data) {
@@ -257,8 +279,6 @@ io.on('connection', function (socket) {
 
     //players changes the transform of a net object
     socket.on('updateTransform', function (data) {
-
-
         var obj = gameState.objects[data.uniqueId];
 
 
@@ -272,12 +292,10 @@ io.on('connection', function (socket) {
 
         //broadcast the change
         socket.broadcast.emit('updateTransform', data);
-
     });
 
     //players is connected and sends avatar data which is then broadcast if valid
     socket.on('avatarData', function (data) {
-
         var val = 1;
 
         val = validateName(data.nickName);
@@ -403,7 +421,6 @@ io.on('connection', function (socket) {
                 gameState.players[socket.id].lastActivity = new Date().getTime();
             }
         }
-
     });
 
 
@@ -411,8 +428,7 @@ io.on('connection', function (socket) {
         print("ATTENTION MAXIMUM PLAYERS REACHED");
         socket.emit("message", { id: "server", message: "SORRY THE SERVER IS FULL. TRY AGAIN LATER." });
         //socket.disconnect();
-    }
-    else {
+    } else {
     //sends the new player a confirmation of the socket connection
     socket.emit('socketConnect', { num: Object.keys(gameState.players).length });
     }
@@ -421,7 +437,6 @@ io.on('connection', function (socket) {
 
 
 function userLeft(socket, data) {
-
     console.log("User disconnected - destroying player " + socket.id);
 
     io.sockets.emit('playerDisconnect', { id: socket.id });
