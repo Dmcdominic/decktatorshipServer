@@ -270,6 +270,14 @@ io.on('connection', function (socket) {
         }
     });
 
+    // send the card title to all players
+    socket.on('cardToBeShuffled', function (data) {
+        let cardTitle = data.cardToShuffleTitle;
+        io.sockets.emit('cardToBeShuffled', cardTitle);
+        gameState.players[socket.id].lastActivity = new Date().getTime();
+    });
+
+
     socket.on('netFunction', function (data) {
         var o = gameState.objects[data.objectName];
         //double check that the requester is the owner and the object can be manipulated
