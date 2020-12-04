@@ -438,6 +438,7 @@ io.on('connection', function (socket) {
         //socket.disconnect();
     } else {
     //sends the new player a confirmation of the socket connection
+    console.log("sending socketConnect as a reply to the client");
     socket.emit('socketConnect', { num: Object.keys(gameState.players).length });
     }
 
