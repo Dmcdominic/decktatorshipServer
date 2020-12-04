@@ -3,7 +3,7 @@
 This is an example of multiplayer architecture with "smart" clients. 
 The clients (Unity) do most of the work; the server (node.js) mostly validates and broadcast the changes of state.
 
-The client's source is [in a different repository](https://github.com/Dmcdominic/Oligarchy).
+The client's source is [in a different repository](https://github.com/Dmcdominic/Decktatorship).
 
 This architecture involves "networked objects" that are tracked by an individual client referred to as "owner". 
 
