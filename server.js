@@ -260,9 +260,13 @@ io.on('connection', function (socket) {
         if (o != null) {
             //increment the qualityStates
             for (var v in data.qualityStates.states) {
-                if (data.qualityStates.states[v] != null && gameState.objects[data.uniqueId].netVariables.qualityStates.states[v] != null) {
-                    gameState.objects[data.uniqueId].netVariables.qualityStates.states[v] += data.qualityStates.states[v];
+                if (data.qualityStates.states[v] != null && o.netVariables.qualityStates.states[v] != null) {
+                   o.netVariables.qualityStates.states[v] += data.qualityStates.states[v];
                 }
+            }
+            if (data.cardToStack) {
+                o.netVariables.cardToStack = data.cardToStack;
+                o.netVariables.lastCTSTtime = Date.now();
             }
             // Send the updated values
             io.sockets.emit('setVariables', gameState.objects[data.uniqueId].netVariables);
@@ -272,7 +276,7 @@ io.on('connection', function (socket) {
 
     // send the card title to all players
     socket.on('cardToBeShuffled', function (data) {
-        let cardTitle = data.cardToShuffleTitle;
+        let cardTitle = data.cardToShuffle;
         io.sockets.emit('cardToBeShuffled', cardTitle);
         gameState.players[socket.id].lastActivity = new Date().getTime();
     });
