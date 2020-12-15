@@ -228,6 +228,17 @@ io.on('connection', function (socket) {
             }
     });
 
+    // disconnect all players
+    socket.on('restart', function (data) {
+        console.log("RESTART RECEIVED. DISCONNECTING ALL PLAYERS");
+        // data will get reset when all the players become disconnected anyway
+        for (var id in io.sockets.sockets) {
+            //io.sockets.sockets[id].emit("errorMessage", "Server Restarted\nPlease Refresh");
+            io.sockets.sockets[id].emit("restart", "Server Restarted\nPlease Refresh");
+            io.sockets.sockets[id].disconnect();
+        }
+    });
+
     //generic variable change
     socket.on('setVariables', function (data) {
         var o = gameState.objects[data.uniqueId];
